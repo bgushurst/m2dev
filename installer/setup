@@ -12,7 +12,7 @@ EDITION=${3:-community}
 git init -qqq
 git remote add origin git@github.com:bgushurst/m2dev.git
 git fetch origin -qqq
-git checkout origin/master
+git checkout origin/main
 
 # Cleanup unnecessary files
 rm -rf images installer Makefile .git
