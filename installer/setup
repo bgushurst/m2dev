@@ -1,0 +1,30 @@
+#!/bin/env bash
+
+# Set this flag to force the script to exit on error instead of continuing to run
+set -e errexit
+
+# Set the default argument values
+DOMAIN=${1:-magento.dev}
+VERSION=${2:-2.4.4}
+EDITION=${3:-community}
+
+# Bootstrap the remainder of the repository
+git init -qqq
+git remote add origin git@github.com:bgushurst/m2dev.git
+git fetch origin -qqq
+git checkout origin/master
+
+# Cleanup unnecessary files
+rm -rf images installer Makefile .git
+
+# Initialize the final projects git repository
+git init
+
+# Ensure these directories are create under user and not by docker
+mkdir -p ~/.composer ~/.ssh
+
+# Start the magento download process
+echo "Downloading Magento..."
+
+# Start the magento setup process
+echo "Setting up Magento..."
