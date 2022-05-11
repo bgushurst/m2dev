@@ -9,3 +9,18 @@ $ mkdir your-dev-folder
 $ cd your-dev-folder
 $ curl -s https://raw.githubusercontent.com/bgushurst/m2dev/master/installer/setup | bash -s -- magento.dev 2.4.4
 ```
+
+## Building
+Use the follow script snippets to build the difference images.
+
+NGINX
+```bash
+$ docker build images/nginx -t "bgushurst/m2dev-nginx:1.21"
+$ docker push "bgushurst/m2dev-nginx:1.21"
+```
+
+PHPFPM
+```bash
+$ docker build images/php-fpm/8.1 -t "bgushurst/m2dev-phpfpm:8.1"
+$ docker push "bgushurst/m2dev-phpfpm:8.1"
+```

@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+  nginx:
+    image: bgushurst/m2dev-nginx:1.21
+    ports:
+      - "80:8000"
+      - "443:8443"
+    volumes: &volumes
+      - ./src:/var/www/html
+      - ~/.composer:/var/www/.composer:cached
+      - ~/.ssh/id_rsa:/var/www/.ssh/id_rsa
+      - ~/.ssh/known_hosts:/var/www/.ssh/known_hosts
+      - sockdata:/sock
+      - ssldata:/etc/nginx/certs
+
+  phpfpm:
+    image: bgushurst/m2dev-phpfpm:8.1
+    volumes: *volumes
+
+volumes:
+  dbdata:
+  rabbitmqdata:
+  sockdata:
+  ssldata:

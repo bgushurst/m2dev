@@ -8,20 +8,49 @@ DOMAIN=${1:-magento.dev}
 VERSION=${2:-2.4.4}
 EDITION=${3:-community}
 
+# Color Codes
+NC='\033[0m'
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+BLUE='\033[0;34m'
+YELLOW='\033[1;93m'
+ONBLUE='\033[44m'
+
+# Support Ukraine
+echo -e "${BLUE}Slava ${YELLOW}Ukraini${NC}\n"
+
+# Script Banner
+echo -e "${ONBLUE}M2DEV Setup Script${NC}\n"
+
+# Check if current directory is empty
+if [ "$(ls -A)" ]; then
+	echo -e "${RED}Please run the script from an empty directory.${NC}\n"
+	exit 1
+fi
+
 # Bootstrap the remainder of the repository
+echo -e "${GREEN}Bootstrapping the repository...${NC}\n"
 git init -qqq
 git remote add origin git@github.com:bgushurst/m2dev.git
 git fetch origin -qqq
-git checkout origin/main
+git checkout origin/main -- .
 
 # Cleanup unnecessary files
-rm -rf images installer Makefile .git
+echo -e "${GREEN}Cleaning up unnecessary files...${NC}\n"
+rm -Rf images installer Makefile .git
 
 # Initialize the final projects git repository
-git init
+echo -e "${GREEN}Initializing the project git repository...${NC}\n"
+git init -qqq
 
 # Ensure these directories are create under user and not by docker
 mkdir -p ~/.composer ~/.ssh
+
+# Startup the containers
+docker compose up -d
+[ $? != 0 ] && echo -e "${RED}Failed to start the containers.${NC}\n" && exit 1
+
+# Obtain composer authentication details
 
 # Start the magento download process
 echo "Downloading Magento..."
