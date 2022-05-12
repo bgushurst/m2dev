@@ -1,0 +1,39 @@
+#!/bin/bash
+USERNAME="http-basic.repo.magento.com.username"
+PASSWORD="http-basic.repo.magento.com.password"
+hash composer 2>/dev/null && INSTALLED=true
+
+PUBLIC_KEY="$(bin/clinotty composer config --global $USERNAME 2>/dev/null)"
+PRIVATE_KEY="$(bin/clinotty composer config --global $PASSWORD 2>/dev/null)"
+
+if [ -n "$PUBLIC_KEY" ] && [ -n "$PRIVATE_KEY" ]; then
+    echo "Composer auth has already been set up."
+    exit 0
+fi
+
+if [ $INSTALLED ]; then
+    PUBLIC_KEY="$(composer config --global $USERNAME 2>/dev/null)"
+    PRIVATE_KEY="$(composer config --global $PASSWORD 2>/dev/null)"
+fi
+
+if [ -z "$PUBLIC_KEY" ] || [ -z "$PRIVATE_KEY" ]; then
+    exec < /dev/tty
+    echo
+    echo "Magento Marketplace API Keys (repo.magento.com):"
+    read -r -p " Username: " PUBLIC_KEY
+    read -r -p " Password: " PRIVATE_KEY
+    echo
+    exec <&-
+fi
+
+if [ -z "$PUBLIC_KEY" ] || [ -z "$PRIVATE_KEY" ]; then
+    echo "Please setup Composer auth for repo.magento.com to continue." && exit 1
+fi
+
+# Output must be piped otherwise file descriptor errors occur. Carriage returns?
+echo "composer config --global http-basic.repo.magento.com ${PUBLIC_KEY} ${PRIVATE_KEY}" | bin/clinotty bash -
+
+# Also make sure alternate auth.json is setup (Magento uses this internally)
+bin/clinotty [ -d "./var/composer_home" ] && bin/clinotty cp /var/www/.composer/auth.json ./var/composer_home/auth.json
+
+echo "Composer auth has been set up."

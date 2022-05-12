@@ -1,0 +1,4 @@
+#!/bin/bash
+[ -z "$1" ] && echo "Please specifiy a CLI command (ex. ls)" && exit
+# -T: Disable psuedo-tty allocation
+docker compose exec -T phpfpm "$@"

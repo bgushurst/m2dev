@@ -51,9 +51,12 @@ docker compose up -d
 [ $? != 0 ] && echo -e "${RED}Failed to start the containers.${NC}\n" && exit 1
 
 # Obtain composer authentication details
+echo -e "${GREEN}Obtaining composer authentication details...${NC}\n"
+bin/setup-composer
 
 # Start the magento download process
-echo "Downloading Magento..."
+echo -e "${GREEN}Starting the magento download process...${NC}\n"
+bin/clinotty composer create-project --repository=https://repo.magento.com/ magento/project-"${EDITION}"-edition="${VERSION}" .
 
 # Start the magento setup process
 echo "Setting up Magento..."
