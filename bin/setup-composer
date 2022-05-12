@@ -6,8 +6,6 @@ hash composer 2>/dev/null && INSTALLED=true
 PUBLIC_KEY="$(bin/clinotty composer config --global $USERNAME 2>/dev/null)"
 PRIVATE_KEY="$(bin/clinotty composer config --global $PASSWORD 2>/dev/null)"
 
-bin/clinotty mkdir -p ./var/composer_home
-
 if [ -n "$PUBLIC_KEY" ] && [ -n "$PRIVATE_KEY" ]; then
     echo "Composer auth has already been set up."
 
