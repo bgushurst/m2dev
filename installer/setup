@@ -53,11 +53,6 @@ docker compose up -d
 # Obtain composer authentication details
 echo -e "${GREEN}Obtaining composer authentication details...${NC}\n"
 bin/setup-composer
-
-# Start the magento download process
-echo -e "${GREEN}Starting the magento download process...${NC}\n"
-bin/clinotty composer create-project --repository=https://repo.magento.com/ magento/project-"${EDITION}"-edition="${VERSION}" .
-
-# Start the magento setup process
-echo "Setting up Magento..."
-bin/setup "${DOMAIN}"
+	# Using && due to errexit flag issues
+	&& bin/clinotty composer create-project --repository=https://repo.magento.com/ magento/project-"${EDITION}"-edition="${VERSION}" .
+	&& bin/setup "${DOMAIN}"
