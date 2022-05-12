@@ -1,0 +1,91 @@
+#!/bin/bash
+
+# Set this flag to force the script to exit on error instead of continuing to run
+set -e errexit
+
+DOMAIN=${1:-magento.dev}
+
+source env/db.env
+source env/elasticsearch.env
+source env/magento.env
+source env/rabbitmq.env
+
+docker compose up -d
+[ $? != 0 ] && echo -e "Failed to start the containers.\n" && exit 1
+
+bin/clinotty chmod u+x bin/magento
+
+echo -e "Waiting for connection to ElasticSearch...\n"
+bin/clinotty timeout $ES_HEALTHCHECK_TIMEOUT bash -c "
+	until curl --silent --output /dev/null http://$ES_HOST:$ES_PORT/_cat/health?h=st; do
+        printf '.'
+        sleep 2
+    done"
+[ $? != 0 ] && echo "Failed to connect to Elasticsearch" && exit
+
+echo ""
+echo "Waiting for connection to RabbitMQ..."
+bin/clinotty timeout $RABBITMQ_HEALTHCHECK_TIMEOUT bash -c "
+    until curl --silent --output /dev/null http://$RABBITMQ_DEFAULT_USER:$RABBITMQ_DEFAULT_PASS@$RABBITMQ_HOST:$RABBITMQ_MANAGEMENT_PORT/api/aliveness-test/%2F; do
+        printf '.'
+        sleep 2
+    done"
+[ $? != 0 ] && echo "Failed to connect to RabbitMQ" && exit
+
+bin/clinotty bin/magento setup:install \
+  --db-host="$MYSQL_HOST" \
+  --db-name="$MYSQL_DATABASE" \
+  --db-user="$MYSQL_USER" \
+  --db-password="$MYSQL_PASSWORD" \
+  --base-url=https://"$DOMAIN"/ \
+  --base-url-secure=https://"$DOMAIN"/ \
+  --backend-frontname="$MAGENTO_ADMIN_FRONTNAME" \
+  --admin-firstname="$MAGENTO_ADMIN_FIRST_NAME" \
+  --admin-lastname="$MAGENTO_ADMIN_LAST_NAME" \
+  --admin-email="$MAGENTO_ADMIN_EMAIL" \
+  --admin-user="$MAGENTO_ADMIN_USER" \
+  --admin-password="$MAGENTO_ADMIN_PASSWORD" \
+  --language="$MAGENTO_LOCALE" \
+  --currency="$MAGENTO_CURRENCY" \
+  --timezone="$MAGENTO_TIMEZONE" \
+  --amqp-host="$RABBITMQ_HOST" \
+  --amqp-port="$RABBITMQ_PORT" \
+  --amqp-user="$RABBITMQ_DEFAULT_USER" \
+  --amqp-password="$RABBITMQ_DEFAULT_PASS" \
+  --amqp-virtualhost="$RABBITMQ_DEFAULT_VHOST" \
+  --cache-backend=redis \
+  --cache-backend-redis-server=redis \
+  --cache-backend-redis-db=0 \
+  --page-cache=redis \
+  --page-cache-redis-server=redis \
+  --page-cache-redis-db=1 \
+  --session-save=redis \
+  --session-save-redis-host=redis \
+  --session-save-redis-log-level=4 \
+  --session-save-redis-db=2 \
+  --search-engine=elasticsearch7 \
+  --elasticsearch-host=$ES_HOST \
+  --elasticsearch-port=$ES_PORT \
+  --use-rewrites=1 \
+  --no-interaction
+
+echo "Forcing deploy of static content to speed up initial requests..."
+bin/clinotty bin/magento setup:static-content:deploy -f
+
+echo "Re-indexing with Elasticsearch..."
+bin/clinotty bin/magento indexer:reindex
+
+echo "Setting basic URL and generating SSL certificate..."
+bin/setup-domain "${DOMAIN}"
+
+echo "Clearing the cache to apply updates..."
+bin/clinotty bin/magento cache:flush
+
+echo "Installing cron, run 'bin/cron start' to enable..."
+bin/clinotty bin/magento cron:install
+
+echo "Turning on developer mode..."
+bin/clinotty bin/magento deploy:mode:set developer
+
+echo "Docker development environment setup complete."
+echo "You may now access your Magento instance at https://${DOMAIN}/"

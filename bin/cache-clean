@@ -1,2 +1,17 @@
 #!/bin/bash
 
+# COMPOSER_GLOBAL=/var/www/.composer-global
+CACHE_CLEAN=vendor/bin/cache-clean.js
+
+if ! bin/cliq ls $CACHE_CLEAN; then
+  echo "Installing devtools metapackage, just a moment..."
+  # bin/cliq mkdir -p ${COMPOSER_GLOBAL}
+  bin/composer require --dev --quiet mage2tv/magento-cache-clean:^1.0
+  echo "Devtools installed."
+fi
+
+if [ "$1" == "--watch" ]; then
+  docker-compose run --rm node vendor/bin/cache-clean.js --watch
+else
+  docker-compose run --rm node vendor/bin/cache-clean.js
+fi
