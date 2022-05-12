@@ -13,7 +13,7 @@ Use the follow code to quickly setup a new development environment within an emp
 ```bash
 $ mkdir your-dev-folder
 $ cd your-dev-folder
-$ curl -s https://raw.githubusercontent.com/bgushurst/m2dev/master/installer/setup | bash -s -- magento.dev 2.4.4
+$ curl -s https://raw.githubusercontent.com/bgushurst/m2dev/master/installer/setup | bash -s -- magento.test 2.4.4
 ```
 
 ## Building

@@ -8,7 +8,7 @@ source env/elasticsearch.env
 source env/magento.env
 source env/rabbitmq.env
 
-DOMAIN=${1:-magento.dev}
+DOMAIN=${1:-magento.test}
 
 docker compose up -d
 [ $? != 0 ] && echo -e "Failed to start the containers.\n" && exit 1

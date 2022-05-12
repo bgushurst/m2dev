@@ -4,7 +4,7 @@
 set -o errexit
 
 # Set the default argument values
-DOMAIN=${1:-magento.dev}
+DOMAIN=${1:-magento.test}
 VERSION=${2:-2.4.4}
 EDITION=${3:-community}
 
@@ -52,7 +52,8 @@ docker compose up -d
 
 # Obtain composer authentication details
 echo -e "${GREEN}Obtaining composer authentication details...${NC}\n"
-bin/setup-composer
-	# Using && due to errexit flag issues
-	&& bin/clinotty composer create-project --repository=https://repo.magento.com/ magento/project-"${EDITION}"-edition="${VERSION}" .
+
+# Using && due to errexit flag issues
+bin/setup-composer \
+	&& bin/clinotty composer create-project --repository=https://repo.magento.com/ magento/project-"${EDITION}"-edition="${VERSION}" . \
 	&& bin/setup "${DOMAIN}"
