@@ -10,6 +10,9 @@ source env/rabbitmq.env
 
 DOMAIN=${1:-magento.test}
 
+echo -e "Uncommenting nginx configuration mount...\n"
+sed -i 's/#\(- \.\/src\/nginx.*\)/\1/' docker-compose.yml
+
 docker compose up -d
 [ $? != 0 ] && echo -e "Failed to start the containers.\n" && exit 1
 
@@ -79,13 +82,13 @@ echo "Setting basic URL and generating SSL certificate..."
 bin/setup-domain "${DOMAIN}"
 
 echo "Clearing the cache to apply updates..."
-bin/clinotty bin/magento cache:flush
+bin/magento cache:flush
 
 echo "Installing cron, run 'bin/cron start' to enable..."
-bin/clinotty bin/magento cron:install
+bin/magento cron:install
 
 echo "Turning on developer mode..."
-bin/clinotty bin/magento deploy:mode:set developer
+bin/magento deploy:mode:set developer
 
 echo "Docker development environment setup complete."
 echo "You may now access your Magento instance at https://${DOMAIN}/"

@@ -13,6 +13,7 @@ services:
       - ~/.ssh/known_hosts:/var/www/.ssh/known_hosts
       - sockdata:/sock
       - ssldata:/etc/nginx/certs
+      #- ./src/nginx.conf.sample:/var/www/html/nginx.conf:cached
 
   phpfpm:
     image: bgushurst/m2dev-phpfpm:8.1
