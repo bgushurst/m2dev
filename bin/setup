@@ -1,14 +1,14 @@
 #!/bin/bash
 
 # Set this flag to force the script to exit on error instead of continuing to run
-set -e errexit
-
-DOMAIN=${1:-magento.dev}
+set -o errexit
 
 source env/db.env
 source env/elasticsearch.env
 source env/magento.env
 source env/rabbitmq.env
+
+DOMAIN=${1:-magento.dev}
 
 docker compose up -d
 [ $? != 0 ] && echo -e "Failed to start the containers.\n" && exit 1

@@ -1,5 +1,6 @@
 # Magento 2 Development (M2DEV)
 > A concise and opinionated Docker development environment for Magento 2
+> Check out https://github.com/markshust/docker-magento as well for a currently more feature complete dev environment
 
 ## Requirements
 1) Project Directory within Linux or WSL 2

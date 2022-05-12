@@ -1,7 +1,7 @@
 #!/bin/env bash
 
 # Set this flag to force the script to exit on error instead of continuing to run
-set -e errexit
+set -o errexit
 
 # Set the default argument values
 DOMAIN=${1:-magento.dev}
@@ -60,3 +60,4 @@ bin/clinotty composer create-project --repository=https://repo.magento.com/ mage
 
 # Start the magento setup process
 echo "Setting up Magento..."
+bin/setup "${DOMAIN}"
