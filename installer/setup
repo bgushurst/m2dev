@@ -44,7 +44,7 @@ echo -e "${GREEN}Initializing the project git repository...${NC}\n"
 git init -qqq
 
 # Ensure these directories are create under user and not by docker
-mkdir -p ~/.composer ~/.ssh
+mkdir -p ~/.composer ~/.ssh ./src
 
 # Startup the containers
 docker compose up -d
